@@ -87,7 +87,7 @@ const checkResponseStatus = (res) => {
 
 fetch('https://api.github.com/graphql', {
   method: 'POST',
-  body: JSON.stringify({ query: gqlQuery, variables: { repos_count: 10 } }),
+  body: JSON.stringify({ query: gqlQuery, variables: { repos_count: 20 } }),
   headers: {
     Authorization: `bearer ${token}`,
   },
@@ -96,7 +96,7 @@ fetch('https://api.github.com/graphql', {
   .then((res) => res.json())
   .then((json) => {
     githubProfileData = json.data.viewer;
-    log(githubProfileData.repositories.nodes[1].languages);
+    log(githubProfileData.repositories);
     const server = http.createServer(requestListener);
     server.listen(port, host, () => {
       log(`Server is running on http://${host}:${port}`);

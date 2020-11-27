@@ -3,6 +3,7 @@ const graphqlQuery = `
     viewer {
       name
       repositories(first: $repos_count, orderBy: {field: PUSHED_AT, direction: DESC}, ownerAffiliations: OWNER) {
+        totalCount
         nodes {
           name
           pushedAt
