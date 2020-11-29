@@ -11,19 +11,19 @@ const PORT = process.env.PORT || 5000;
 //   .get('/', (req, res) => res.end('This page does not exist'))
 //   .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
-// require('dotenv').config();
-// const fs = require('fs');
+// require('dotenv').config(); //This is for loading environment variables from the development enviroment only
+const fs = require('fs');
 // const path = require('path');
 // const url = require('url');
-// const ejs = require('ejs');
-// const fetch = require('node-fetch');
-// const gqlQuery = require('./utils/graphql');
+const ejs = require('ejs');
+const fetch = require('node-fetch');
+const gqlQuery = require('./utils/graphql');
 
-// let githubProfileData;
+let githubProfileData;
 const { log, error } = console;
 
-// const templatePath = `${__dirname}/views/index.ejs`;
-// const html = fs.readFileSync(templatePath, 'utf-8');
+const templatePath = `${__dirname}/views/index.ejs`;
+const html = fs.readFileSync(templatePath, 'utf-8');
 
 const token = process.env.GITHUB_TOKEN;
 
@@ -47,8 +47,8 @@ const token = process.env.GITHUB_TOKEN;
 //   });
 // };
 
-// // The pattern used to match url like /assets/[filename].[extension], for example /assets/main.css
-// const assetPattern = /^\/assets\/[a-zA-Z]+\.[a-zA-Z]+/;
+// The pattern used to match url like /assets/[filename].[extension], for example /assets/main.css
+const assetPattern = /^\/assets\/[a-zA-Z]+\.[a-zA-Z]+/;
 const requestListener = (req, res) => {
   //   const requestUrl = url.parse(req.url);
   //   const urlPath = requestUrl.pathname;
@@ -59,10 +59,12 @@ const requestListener = (req, res) => {
   //   // let filePath;
   const { url } = req;
   if (url === '/') {
-    res.end(`Github token is ${token}`);
+    res.end(ejs.render(html, { ...githubProfileData, filename: templatePath }));
+    // res.end(`Github token is ${token}`);
+  } else {
+    res.end("This page doesn't exist");
   }
-  //   //   res.end(ejs.render(html, { ...githubProfileData, filename: templatePath }));
-  //   // } else if (url.match(assetPattern)) {
+  //   // else if (url.match(assetPattern)) {
   //   //   // Added the public pattern because these static files are actually located inside /public/assets, although they are publicly served under [domain]/assets/
   //   //   filePath = `./public${req.url}`;
   //   //   const extname = String(path.extname(filePath)).toLowerCase();
@@ -86,37 +88,28 @@ const requestListener = (req, res) => {
   //   //   const contentType = mimeTypes[extname] || 'application/octet-stream';
   //   //   log(`file path is ${filePath}`);
   //   //   staticFileHandler(req, res, filePath, contentType);
-  //   // } else {
-  //   //   res.end("This page doesn't exist");
-  //   // }
 };
 
-// const checkResponseStatus = (res) => {
-//   if (!res.ok) throw new Error(`Request to Github API failed: ${res.status}-${res.statusText}`);
-//   return res;
-// };
+const checkResponseStatus = (res) => {
+  if (!res.ok) throw new Error(`Request to Github API failed: ${res.status}-${res.statusText}`);
+  return res;
+};
 
-const server = http.createServer(requestListener);
-
-server.listen(PORT, () => {
-  log(`Server is running on port ${PORT}`);
-});
-
-// // fetch('https://api.github.com/graphql', {
-// //   method: 'POST',
-// //   body: JSON.stringify({ query: gqlQuery, variables: { repos_count: 20 } }),
-// //   headers: {
-// //     Authorization: `bearer ${token}`,
-// //   },
-// // })
-// //   .then(checkResponseStatus)
-// //   .then((res) => res.json())
-// //   .then((json) => {
-// //     githubProfileData = json.data.viewer;
-// //     log(githubProfileData.repositories);
-// //     const server = http.createServer(requestListener);
-// //     server.listen(port, host, () => {
-// //       log(`Server is running on http://${host}:${port}`);
-// //     });
-// //   })
-// //   .catch((err) => error(err));
+fetch('https://api.github.com/graphql', {
+  method: 'POST',
+  body: JSON.stringify({ query: gqlQuery, variables: { repos_count: 20 } }),
+  headers: {
+    Authorization: `bearer ${token}`,
+  },
+})
+  .then(checkResponseStatus)
+  .then((res) => res.json())
+  .then((json) => {
+    githubProfileData = json.data.viewer;
+    log(githubProfileData.repositories);
+    const server = http.createServer(requestListener);
+    server.listen(PORT, () => {
+      log(`Server is running on ${PORT}`);
+    });
+  })
+  .catch((err) => error(err));
