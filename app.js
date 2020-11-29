@@ -79,27 +79,27 @@ const checkResponseStatus = (res) => {
   return res;
 };
 
-// const server = http.createServer(requestListener);
+const server = http.createServer(requestListener);
 
-// server.listen(port, host, () => {
-//   log(`Server is running on http://${host}:${port}`);
-// });
+server.listen(port, host, () => {
+  log(`Server is running on http://${host}:${port}`);
+});
 
-fetch('https://api.github.com/graphql', {
-  method: 'POST',
-  body: JSON.stringify({ query: gqlQuery, variables: { repos_count: 20 } }),
-  headers: {
-    Authorization: `bearer ${token}`,
-  },
-})
-  .then(checkResponseStatus)
-  .then((res) => res.json())
-  .then((json) => {
-    githubProfileData = json.data.viewer;
-    log(githubProfileData.repositories);
-    const server = http.createServer(requestListener);
-    server.listen(port, host, () => {
-      log(`Server is running on http://${host}:${port}`);
-    });
-  })
-  .catch((err) => error(err));
+// fetch('https://api.github.com/graphql', {
+//   method: 'POST',
+//   body: JSON.stringify({ query: gqlQuery, variables: { repos_count: 20 } }),
+//   headers: {
+//     Authorization: `bearer ${token}`,
+//   },
+// })
+//   .then(checkResponseStatus)
+//   .then((res) => res.json())
+//   .then((json) => {
+//     githubProfileData = json.data.viewer;
+//     log(githubProfileData.repositories);
+//     const server = http.createServer(requestListener);
+//     server.listen(port, host, () => {
+//       log(`Server is running on http://${host}:${port}`);
+//     });
+//   })
+//   .catch((err) => error(err));
