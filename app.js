@@ -7,7 +7,7 @@ express()
   .use(express.static(path.join(__dirname, 'public/assets')))
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
-  .get('/', (req, res) => res.render('pages/index'))
+  .get('/', (req, res) => res.render('This page does not exist'))
   .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 // require('dotenv').config();
