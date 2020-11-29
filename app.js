@@ -2,6 +2,7 @@ require('dotenv').config();
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const url = require('url');
 const ejs = require('ejs');
 const fetch = require('node-fetch');
 const gqlQuery = require('./utils/graphql');
@@ -40,38 +41,44 @@ const staticFileHandler = (req, res, filePath, contentType) => {
 // The pattern used to match url like /assets/[filename].[extension], for example /assets/main.css
 const assetPattern = /^\/assets\/[a-zA-Z]+\.[a-zA-Z]+/;
 const requestListener = (req, res) => {
-  log(req.url);
-  let filePath;
-  const { url } = req;
-  if (url === '/') {
-    res.end(ejs.render(html, { ...githubProfileData, filename: templatePath }));
-  } else if (url.match(assetPattern)) {
-    // Added the public pattern because these static files are actually located inside /public/assets, although they are publicly served under [domain]/assets/
-    filePath = `./public${req.url}`;
-    const extname = String(path.extname(filePath)).toLowerCase();
-    const mimeTypes = {
-      '.html': 'text/html',
-      '.js': 'text/javascript',
-      '.css': 'text/css',
-      '.json': 'application/json',
-      '.png': 'image/png',
-      '.jpg': 'image/jpg',
-      '.gif': 'image/gif',
-      '.svg': 'image/svg+xml',
-      '.wav': 'audio/wav',
-      '.mp4': 'video/mp4',
-      '.woff': 'application/font-woff',
-      '.ttf': 'application/font-ttf',
-      '.eot': 'application/vnd.ms-fontobject',
-      '.otf': 'application/font-otf',
-      '.wasm': 'application/wasm',
-    };
-    const contentType = mimeTypes[extname] || 'application/octet-stream';
-    log(`file path is ${filePath}`);
-    staticFileHandler(req, res, filePath, contentType);
-  } else {
-    res.end("This page doesn't exist");
-  }
+  const requestUrl = url.parse(req.url);
+  const urlPath = requestUrl.pathname;
+  const parts = urlPath.split('/').slice(1);
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end(parts[1]);
+  // log(req.url);
+  // let filePath;
+  // const { url } = req;
+  // if (url === '/') {
+  //   res.end(ejs.render(html, { ...githubProfileData, filename: templatePath }));
+  // } else if (url.match(assetPattern)) {
+  //   // Added the public pattern because these static files are actually located inside /public/assets, although they are publicly served under [domain]/assets/
+  //   filePath = `./public${req.url}`;
+  //   const extname = String(path.extname(filePath)).toLowerCase();
+  //   const mimeTypes = {
+  //     '.html': 'text/html',
+  //     '.js': 'text/javascript',
+  //     '.css': 'text/css',
+  //     '.json': 'application/json',
+  //     '.png': 'image/png',
+  //     '.jpg': 'image/jpg',
+  //     '.gif': 'image/gif',
+  //     '.svg': 'image/svg+xml',
+  //     '.wav': 'audio/wav',
+  //     '.mp4': 'video/mp4',
+  //     '.woff': 'application/font-woff',
+  //     '.ttf': 'application/font-ttf',
+  //     '.eot': 'application/vnd.ms-fontobject',
+  //     '.otf': 'application/font-otf',
+  //     '.wasm': 'application/wasm',
+  //   };
+  //   const contentType = mimeTypes[extname] || 'application/octet-stream';
+  //   log(`file path is ${filePath}`);
+  //   staticFileHandler(req, res, filePath, contentType);
+  // } else {
+  //   res.end("This page doesn't exist");
+  // }
 };
 
 const checkResponseStatus = (res) => {
