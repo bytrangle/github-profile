@@ -15,7 +15,17 @@ const convertTime = (date) => {
   const now = new Date();
   const dateDiffInMilliSecs = Math.abs(now - givenDate);
   const dateDiffInDays = Math.ceil(dateDiffInMilliSecs / (24 * 60 * 60 * 1000));
-  const updatedTime = dateDiffInDays <= 7 ? `${dateDiffInDays} days ago` : `on ${dateOnly}`;
+  let updatedTime;
+  if (dateDiffInDays === 1) {
+    updatedTime = 'today';
+  } else if (dateDiffInDays === 2) {
+    updatedTime = 'yesterday';
+  } else if (dateDiffInDays >= 3 && dateDiffInDays <= 7) {
+    updatedTime = `${dateDiffInDays} days ago`;
+  } else {
+    updatedTime = `on ${dateOnly}`;
+  }
+
   return { relativeTime, updatedTime };
 };
 window.addEventListener('DOMContentLoaded', () => {
