@@ -51,18 +51,10 @@ const requestListener = (req, response) => {
   } else if (url === '/api') {
     log(reposQuery);
     post(apiEndpoint, { query: reposQuery, variables: { repos_count: 20 } }, token)
-      // fetch(apiEndpoint, {
-      //   method: 'POST',
-      //   body: JSON.stringify({ query: reposQuery, variables: { repos_count: 20 } }),
-      //   headers: {
-      //     Authorization: `bearer ${token}`,
-      //   },
-      // })
       .then((res) => res.json())
       .then((json) => {
-        const repos = json.data.viewer.repositories.nodes;
+        const repos = json.data.viewer.repositories;
         log(repos);
-        log(repos.constructor === Array);
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.write(JSON.stringify({ data: repos }));
         response.end();

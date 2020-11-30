@@ -18,7 +18,7 @@ const convertTime = (date) => {
   const updatedTime = dateDiffInDays <= 7 ? `${dateDiffInDays} days ago` : `on ${dateOnly}`;
   return { relativeTime, updatedTime };
 };
-window.addEventListener('DOMContentLoaded', (event) => {
+window.addEventListener('DOMContentLoaded', () => {
   const reposSection = document.getElementById('user-repositories-list');
   const reposUl = reposSection.querySelector('ul');
   console.log('DOM fully loaded and parsed');
@@ -26,11 +26,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
     .then((response) => response.json())
     .then((json) => {
       const { data } = json;
-      console.log(json.data);
-      if (data) {
+      const { totalCount, nodes } = data;
+      console.log(nodes);
+      if (totalCount > 0) {
+        const countElem = document.querySelector('.UnderlineNav a span.Counter');
+        countElem.innerText = totalCount;
         const repoTemplate = document.getElementById('user-repository-item');
         const statsTemplate = document.getElementById('user-reposiroty-stats');
-        data.forEach((e) => {
+        nodes.forEach((e) => {
           const { name, pushedAt, url, stargazerCount, forkCount } = e;
           // Clone the li element and insert it into the unorder list for displaying repos
           const repoClone = repoTemplate.content.cloneNode(true);
