@@ -1,3 +1,4 @@
+require('dotenv').config(); // This is for loading environment variables from the development enviroment only
 const http = require('http');
 const express = require('express');
 const path = require('path');
@@ -11,16 +12,18 @@ const PORT = process.env.PORT || 5000;
 //   .get('/', (req, res) => res.end('This page does not exist'))
 //   .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
-// require('dotenv').config(); //This is for loading environment variables from the development enviroment only
 const fs = require('fs');
 // const path = require('path');
 // const url = require('url');
 const ejs = require('ejs');
 const fetch = require('node-fetch');
-const gqlQuery = require('./utils/graphql');
+const { profileQuery, reposQuery } = require('./utils/graphql');
+const { post } = require('./utils/apiService');
 
 let githubProfileData;
+const apiEndpoint = 'https://api.github.com/graphql';
 const { log, error } = console;
+log(profileQuery);
 
 const templatePath = `${__dirname}/views/index.ejs`;
 const html = fs.readFileSync(templatePath, 'utf-8');
@@ -47,13 +50,69 @@ const staticFileHandler = (req, res, filePath, contentType) => {
   });
 };
 
+const checkResponseStatus = (res) => {
+  if (!res.ok) throw new Error(`Request to Github API failed: ${res.status}-${res.statusText}`);
+  return res;
+};
+
 // The pattern used to match url like /assets/[filename].[extension], for example /assets/main.css
+const test = `
+query myRepos($repos_count:Int!) {
+  viewer {
+    repositories(first: $repos_count) {
+      totalCount
+    }
+  }
+}
+`;
 const assetPattern = /^\/assets\/[a-zA-Z]+\.[a-zA-Z]+/;
-const requestListener = (req, res) => {
+const requestListener = (req, response) => {
   const { url } = req;
   if (url === '/') {
-    res.end(ejs.render(html, { ...githubProfileData, filename: templatePath }));
-  } else if (url.match(assetPattern)) {
+    response.end(ejs.render(html, { ...githubProfileData, filename: templatePath }));
+  } else if (url === '/api') {
+    log(reposQuery);
+    post(apiEndpoint, { query: reposQuery, variables: { repos_count: 20 } }, token)
+      // fetch(apiEndpoint, {
+      //   method: 'POST',
+      //   body: JSON.stringify({ query: reposQuery, variables: { repos_count: 20 } }),
+      //   headers: {
+      //     Authorization: `bearer ${token}`,
+      //   },
+      // })
+      .then((res) => res.json())
+      .then((json) => {
+        const repos = json.data.viewer.repositories.nodes;
+        log(repos);
+        log(repos.constructor === Array);
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        response.write(JSON.stringify({ data: repos }));
+        response.end();
+      });
+  }
+  // else if (url === '/api') {
+  //   log(reposQuery);
+  //   fetch(apiEndpoint, {
+  //     method: 'POST',
+  //     body: JSON.stringify({ query: test, variables: { repos_count: 20 } }),
+  //     headers: {
+  //       Authorization: `bearer ${token}`,
+  //     },
+  //   })
+  //     .then(checkResponseStatus)
+  //     .then((res) => res.json())
+  //     .then((json) => {
+  //       log(json);
+  //       response.end('Fuck you');
+  //     })
+  //     // .then((json) => {
+  //     //   log(json);
+  //     //   const repos = json.data.viewer;
+  //     //   response.end({ data: repos });
+  //     // })
+  //     .catch((err) => error(err));
+  // }
+  else if (url.match(assetPattern)) {
     // Added the public pattern because these static files are actually located inside /public/assets, although they are publicly served under [domain]/assets/
     const filePath = `./public${req.url}`;
     const extname = String(path.extname(filePath)).toLowerCase();
@@ -76,29 +135,25 @@ const requestListener = (req, res) => {
     };
     const contentType = mimeTypes[extname] || 'application/octet-stream';
     log(`file path is ${filePath}`);
-    staticFileHandler(req, res, filePath, contentType);
+    staticFileHandler(req, response, filePath, contentType);
   } else {
-    res.end("This page doesn't exist");
+    response.end("This page doesn't exist");
   }
 };
 
-const checkResponseStatus = (res) => {
-  if (!res.ok) throw new Error(`Request to Github API failed: ${res.status}-${res.statusText}`);
-  return res;
-};
-
-fetch('https://api.github.com/graphql', {
-  method: 'POST',
-  body: JSON.stringify({ query: gqlQuery, variables: { repos_count: 20 } }),
-  headers: {
-    Authorization: `bearer ${token}`,
-  },
-})
-  .then(checkResponseStatus)
+// fetch(apiEndpoint, {
+//   method: 'POST',
+//   body: JSON.stringify({ query: profileQuery }),
+//   headers: {
+//     Authorization: `bearer ${token}`,
+//   },
+// })
+// .then(checkResponseStatus)
+post(apiEndpoint, { query: profileQuery }, token)
   .then((res) => res.json())
   .then((json) => {
     githubProfileData = json.data.viewer;
-    log(githubProfileData.repositories);
+    log(json);
     const server = http.createServer(requestListener);
     server.listen(PORT, () => {
       log(`Server is running on ${PORT}`);

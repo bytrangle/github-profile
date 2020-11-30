@@ -25,8 +25,7 @@
       data-issue-and-pr-hovercards-enabled
     >
       <main id="js-pjax-container" data-pjax-container="">
-        <%- include('underlineNav', {login, name, bio, avatarUrl, reposCount:
-        repositories.totalCount}); -%>
+        <%- include('underlineNav', {login, name, bio, avatarUrl}); -%>
         <div class="container-xl px-3 px-md-4 px-lg-5">
           <div class="gutter-condensed gutter-lg flex-column flex-md-row d-flex">
             <div class="flex-shrink-0 col-12 col-md-3 mb-4 mb-md-0">
@@ -35,8 +34,7 @@
             <div class="flex-shrink-0 col-12 col-md-9 mb-4 mb-md-0">
               <div>
                 <div class="position-relative">
-                  <%- include('repoSearchBar', {login}); -%> <%- include('repoList', {repos:
-                  repositories.nodes}); -%>
+                  <%- include('repoSearchBar', {login}); -%> <%- include('repoList'); -%>
                 </div>
               </div>
             </div>
@@ -44,5 +42,6 @@
         </div>
       </main>
     </div>
+    <script src="/assets/bundle.js"></script>
   </body>
 </html>

@@ -3,6 +3,7 @@
 :root {
   --color-auto-black: #1b1f23;
   --color-avatar-border: transparent;
+  --color-bg-backdrop: rgba(27, 31, 35, 0.5);
   --color-bg-canvas: #fff;
   --color-bg-overlay: #fff;
   --color-bg-primary: #fff;
@@ -23,6 +24,7 @@
   --color-counter-bg: rgba(209, 213, 218, 0.5);
   --color-counter-text: #24292e;
   --color-dropdown-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
+  --color-fade-black-30: rgba(27, 31, 35, 0.3);
   --color-fade-white-15: hsla(0, 0%, 100%, 0.15);
   --color-fade-white-70: hsla(0, 0%, 100%, 0.7);
   --color-header-bg: #24292e;
@@ -34,6 +36,8 @@
   --color-input-border: #e1e4e8;
   --color-input-contrast-bg: #fafbfc;
   --color-repo-language-color-border: rgba(27, 31, 35, 0.1);
+  --color-scale-gray-3: #d1d5da;
+  --color-scale-gray-5: #6a737d;
   --color-shadow-inset: inset 0 1px 0 rgba(225, 228, 232, 0.2);
   --color-text-link: #0366d6;
   --color-text-primary: #24292e;
@@ -389,6 +393,18 @@ summary {
 .position-absolute {
   position: absolute;
 }
+.position-absolute-center-child {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-box-align: center;
+  justify-content: center;
+}
 .position-relative {
   position: relative !important;
 }
@@ -397,6 +413,15 @@ summary {
 }
 .top-0 {
   top: 0 !important;
+}
+.right-0 {
+  right: 0 !important;
+}
+.left-0 {
+  left: 0 !important;
+}
+.bottom-0 {
+  bottom: 0 !important;
 }
 .v-align-bottom {
   vertical-align: bottom !important;
@@ -1542,6 +1567,33 @@ SelectMenu {
     transition: transform 0.12s cubic-bezier(0, 0, 0.2, 1), visibility 0s linear;
     transform: scale(1);
   }
+}
+
+/* LOADING INDICATOR */
+.loading__wrapper {
+  min-height: 50vh;
+  background: var(--color-fade-white-15);
+  z-index: 21;
+  box-shadow: 6px -4px 5px var(--color-fade-black-30);
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.loading__icon {
+  border-style: solid;
+  border-color: var(--color-scale-gray-5) transparent transparent var(--color-scale-gray-3);
+  border-image: initial;
+  border-radius: 50%;
+  border-width: 3px;
+  width: 36px;
+  height: 36px;
+  box-sizing: border-box;
+  animation: 400ms linear 0s infinite normal none running spin;
 }
 
 /* || REPOS */

@@ -1,7 +1,16 @@
-const graphqlQuery = `
-  query myGithubProfile($repos_count:Int!) {
+const profileQuery = `
+  query myGithubProfile {
     viewer {
       name
+      avatarUrl
+      login
+      bio
+    }
+  }
+`;
+const reposQuery = `
+  query myRepos($repos_count:Int!) {
+    viewer {
       repositories(first: $repos_count, orderBy: {field: PUSHED_AT, direction: DESC}, ownerAffiliations: OWNER) {
         totalCount
         nodes {
@@ -18,10 +27,8 @@ const graphqlQuery = `
           url
         }
       }
-      avatarUrl
-      login
-      bio
     }
   }
 `;
-module.exports = graphqlQuery;
+module.exports = { profileQuery, reposQuery };
+// module.exports = { profileQuery, reposQuery };
