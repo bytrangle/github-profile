@@ -1,22 +1,13 @@
 require('dotenv').config(); // This is for loading environment variables from the development enviroment only
 const http = require('http');
-const express = require('express');
 const path = require('path');
 
 const PORT = process.env.PORT || 5000;
-
-// express()
-//   .use(express.static(path.join(__dirname, 'public/assets')))
-//   .set('views', path.join(__dirname, 'views'))
-//   .set('view engine', 'ejs')
-//   .get('/', (req, res) => res.end('This page does not exist'))
-//   .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 const fs = require('fs');
 // const path = require('path');
 // const url = require('url');
 const ejs = require('ejs');
-const fetch = require('node-fetch');
 const { profileQuery, reposQuery } = require('./utils/graphql');
 const { post } = require('./utils/apiService');
 
@@ -50,21 +41,8 @@ const staticFileHandler = (req, res, filePath, contentType) => {
   });
 };
 
-const checkResponseStatus = (res) => {
-  if (!res.ok) throw new Error(`Request to Github API failed: ${res.status}-${res.statusText}`);
-  return res;
-};
-
 // The pattern used to match url like /assets/[filename].[extension], for example /assets/main.css
-const test = `
-query myRepos($repos_count:Int!) {
-  viewer {
-    repositories(first: $repos_count) {
-      totalCount
-    }
-  }
-}
-`;
+
 const assetPattern = /^\/assets\/[a-zA-Z]+\.[a-zA-Z]+/;
 const requestListener = (req, response) => {
   const { url } = req;
